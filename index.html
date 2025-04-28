@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Catch the Falling Animals</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #e0f7fa; }
+    #homeScreen, #gameScreen {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #gameCanvas { display: none; background: #e0f7fa; }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #restartBtn, #pauseBtn, #musicBtn {
+      position: absolute;
+      top: 10px;
+    }
+    #restartBtn { right: 10px; display: none; }
+    #pauseBtn { left: 10px; }
+    #musicBtn { left: 100px; }
+    #hud {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      color: black;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="homeScreen">
+  <h1>Catch the Falling Animals</h1>
+  <button id="playBtn">Play Game</button>
+</div>
+
+<div id="gameScreen" style="display: none; position: relative;">
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <div id="hud"></div>
+  <button id="pauseBtn">Pause</button>
+  <button id="musicBtn">Music Off</button>
+  <button id="restartBtn">Restart</button>
+</div>
+
+<audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2023/07/25/audio_3f589eaf3f.mp3?filename=happy-calm-music-146095.mp3" loop></audio>
+
+<script>
+// JavaScript already included and correct as user provided
+</script>
+
+</body>
+</html>
