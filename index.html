@@ -33,8 +33,177 @@
 <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2023/07/25/audio_3f589eaf3f.mp3?filename=happy-calm-music-146095.mp3" loop></audio>
 
 <script>
-// (Full JavaScript game logic inserted from canvas)
+// updated spawn interval and speed boost
+const playBtn = document.getElementById('playBtn');
+const restartBtn = document.getElementById('restartBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const musicBtn = document.getElementById('musicBtn');
+const bgMusic = document.getElementById('bgMusic');
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const hud = document.getElementById('hud');
+const homeScreen = document.getElementById('homeScreen');
+const gameScreen = document.getElementById('gameScreen');
 
+let basket, objects, animals, score, lives, gameOver, flashTimer, keys, level, basketJumpTimer;
+let spawnInterval;
+let animationFrameId;
+let paused = false;
+let catchStreak = 0;
+const backgroundImage = new Image();
+backgroundImage.src = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?crop=entropy&cs=tinysrgb&fit=crop&h=600&w=400';
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+
+function initGame() {
+  basket = { x: canvas.width / 2 - canvas.width * 0.075, y: canvas.height * 0.9, width: canvas.width * 0.15, height: canvas.height * 0.03, speed: canvas.width * 0.02 };
+  objects = [];
+  animals = ['🐱', '🐶', '🐘', '🐖'];
+  score = 0;
+  lives = 5;
+  gameOver = false;
+  flashTimer = 0;
+  keys = {};
+  level = 1;
+  basketJumpTimer = 0;
+  catchStreak = 0;
+}
+
+document.addEventListener('keydown', (e) => keys[e.key] = true);
+document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+canvas.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 0) {
+    let touchX = e.touches[0].clientX;
+    basket.x = Math.min(Math.max(0, touchX - basket.width / 2), canvas.width - basket.width);
+  }
+});
+
+function spawnObject() {
+  let type = animals[Math.floor(Math.random() * animals.length)];
+  objects.push({
+    x: Math.random() * (canvas.width - 40),
+    y: -40,
+    size: canvas.width * 0.05,
+    speedX: (Math.random() - 0.5) * 4,
+    speedY: (2 + Math.random() * 3) * 1.1, // ⬅ 10% faster
+    type: type
+  });
+}
+
+function update() {
+  if (gameOver || paused) return;
+
+  if (keys['ArrowLeft'] && basket.x > 0) basket.x -= basket.speed;
+  if (keys['ArrowRight'] && basket.x < canvas.width - basket.width) basket.x += basket.speed;
+  if (keys['ArrowUp'] && basket.y > 0) basket.y -= basket.speed;
+  if (keys['ArrowDown'] && basket.y < canvas.height - basket.height) basket.y += basket.speed;
+
+  for (let i = 0; i < objects.length; i++) {
+    objects[i].y += objects[i].speedY;
+    objects[i].x += objects[i].speedX;
+    if (objects[i].x <= 0 || objects[i].x + objects[i].size >= canvas.width) {
+      objects[i].speedX *= -1;
+    }
+    if (objects[i].y + objects[i].size > basket.y &&
+        objects[i].x + objects[i].size > basket.x &&
+        objects[i].x < basket.x + basket.width) {
+      score++;
+      basketJumpTimer = 10;
+      catchStreak++;
+      objects.splice(i, 1);
+      if (catchStreak >= 5 && lives < 5) {
+        lives++;
+        catchStreak = 0;
+      }
+    }
+  }
+
+  lives -= objects.filter(obj => obj.y > canvas.height).length;
+  objects = objects.filter(obj => obj.y <= canvas.height);
+  if (lives <= 0) {
+    gameOver = true;
+    flashTimer = 0;
+    restartBtn.style.display = 'block';
+  }
+}
+
+function draw() {
+  if (backgroundImage.complete) {
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#e0f7fa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  ctx.fillStyle = 'blue';
+  let jumpOffset = basketJumpTimer > 0 ? -10 : 0;
+  ctx.fillRect(basket.x, basket.y + jumpOffset, basket.width, basket.height);
+
+  ctx.font = `${Math.max(canvas.width, canvas.height) * 0.04}px Arial`;
+  for (let obj of objects) {
+    ctx.fillText(obj.type, obj.x, obj.y);
+  }
+
+  hud.innerHTML = `Score: ${score}<br>Lives: ${'❤️'.repeat(lives)}`;
+
+  if (gameOver) {
+    flashTimer++;
+    ctx.font = `${Math.max(canvas.width, canvas.height) * 0.06}px Impact`;
+    ctx.fillStyle = flashTimer % 20 < 10 ? 'white' : 'red';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+  }
+}
+
+function gameLoop() {
+  update();
+  draw();
+  if (!gameOver) animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+playBtn.addEventListener('click', () => {
+  homeScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
+  canvas.style.display = 'block';
+  bgMusic.play();
+  resizeCanvas();
+  initGame();
+  if (spawnInterval) clearInterval(spawnInterval);
+  spawnInterval = setInterval(spawnObject, 700); // ⬅ spawn more often
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  gameLoop();
+});
+
+restartBtn.addEventListener('click', () => {
+  restartBtn.style.display = 'none';
+  initGame();
+  if (spawnInterval) clearInterval(spawnInterval);
+  spawnInterval = setInterval(spawnObject, 700); // ⬅ spawn more often
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  gameLoop();
+});
+
+pauseBtn.addEventListener('click', () => {
+  paused = !paused;
+  pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+});
+
+musicBtn.addEventListener('click', () => {
+  if (bgMusic.paused) {
+    bgMusic.play();
+    musicBtn.textContent = 'Music Off';
+  } else {
+    bgMusic.pause();
+    musicBtn.textContent = 'Music On';
+  }
+});
+
+resizeCanvas();
 </script>
 
 </body>
