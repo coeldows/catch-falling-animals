@@ -33,7 +33,6 @@
 <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2023/07/25/audio_3f589eaf3f.mp3?filename=happy-calm-music-146095.mp3" loop></audio>
 
 <script>
-// updated spawn interval and speed boost
 const playBtn = document.getElementById('playBtn');
 const restartBtn = document.getElementById('restartBtn');
 const pauseBtn = document.getElementById('pauseBtn');
@@ -60,7 +59,13 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 
 function initGame() {
-  basket = { x: canvas.width / 2 - canvas.width * 0.075, y: canvas.height * 0.9, width: canvas.width * 0.15, height: canvas.height * 0.03, speed: canvas.width * 0.02 };
+  basket = {
+    x: canvas.width / 2 - canvas.width * 0.0675,
+    y: canvas.height * 0.9,
+    width: canvas.width * 0.135,
+    height: canvas.height * 0.03,
+    speed: canvas.width * 0.02
+  };
   objects = [];
   animals = ['🐱', '🐶', '🐘', '🐖'];
   score = 0;
@@ -90,7 +95,7 @@ function spawnObject() {
     y: -40,
     size: canvas.width * 0.05,
     speedX: (Math.random() - 0.5) * 4,
-    speedY: (2 + Math.random() * 3) * 1.1, // ⬅ 10% faster
+    speedY: (2 + Math.random() * 3) * 1.1,
     type: type
   });
 }
@@ -106,9 +111,11 @@ function update() {
   for (let i = 0; i < objects.length; i++) {
     objects[i].y += objects[i].speedY;
     objects[i].x += objects[i].speedX;
+
     if (objects[i].x <= 0 || objects[i].x + objects[i].size >= canvas.width) {
       objects[i].speedX *= -1;
     }
+
     if (objects[i].y + objects[i].size > basket.y &&
         objects[i].x + objects[i].size > basket.x &&
         objects[i].x < basket.x + basket.width) {
@@ -125,6 +132,7 @@ function update() {
 
   lives -= objects.filter(obj => obj.y > canvas.height).length;
   objects = objects.filter(obj => obj.y <= canvas.height);
+
   if (lives <= 0) {
     gameOver = true;
     flashTimer = 0;
@@ -174,7 +182,7 @@ playBtn.addEventListener('click', () => {
   resizeCanvas();
   initGame();
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnObject, 700); // ⬅ spawn more often
+  spawnInterval = setInterval(spawnObject, 700);
   if (animationFrameId) cancelAnimationFrame(animationFrameId);
   gameLoop();
 });
@@ -183,7 +191,7 @@ restartBtn.addEventListener('click', () => {
   restartBtn.style.display = 'none';
   initGame();
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnObject, 700); // ⬅ spawn more often
+  spawnInterval = setInterval(spawnObject, 700);
   if (animationFrameId) cancelAnimationFrame(animationFrameId);
   gameLoop();
 });
