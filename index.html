@@ -90,14 +90,17 @@ canvas.addEventListener('touchmove', (e) => {
 
 function spawnObject() {
   let type = animals[Math.floor(Math.random() * animals.length)];
+  let isSpeedBonus = (score > 0 && score % 5 === 0);
   objects.push({
     x: Math.random() * (canvas.width - 40),
     y: -40,
     size: canvas.width * 0.05,
-    speedX: (Math.random() - 0.5) * 4,
-    speedY: (2 + Math.random() * 3) * 1.1,
-    type: type
+    speedX: isSpeedBonus ? (Math.random() - 0.5) * 8 : (Math.random() - 0.5) * 4,
+    speedY: isSpeedBonus ? (2 + Math.random() * 3) * 2.2 : (2 + Math.random() * 3) * 1.1,
+    type: type,
+    bounces: isSpeedBonus
   });
+});
 }
 
 function update() {
@@ -112,9 +115,9 @@ function update() {
     objects[i].y += objects[i].speedY;
     objects[i].x += objects[i].speedX;
 
-    if (objects[i].x <= 0 || objects[i].x + objects[i].size >= canvas.width) {
-      objects[i].speedX *= -1;
-    }
+    if (objects[i].bounces && (objects[i].x <= 0 || objects[i].x + objects[i].size >= canvas.width)) {
+  objects[i].speedX *= -1;
+}
 
     if (objects[i].y + objects[i].size > basket.y &&
         objects[i].x + objects[i].size > basket.x &&
