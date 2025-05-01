@@ -100,7 +100,6 @@ function spawnObject() {
     type: type,
     bounces: isSpeedBonus
   });
-});
 }
 
 function update() {
@@ -116,8 +115,8 @@ function update() {
     objects[i].x += objects[i].speedX;
 
     if (objects[i].bounces && (objects[i].x <= 0 || objects[i].x + objects[i].size >= canvas.width)) {
-  objects[i].speedX *= -1;
-}
+      objects[i].speedX *= -1;
+    }
 
     if (objects[i].y + objects[i].size > basket.y &&
         objects[i].x + objects[i].size > basket.x &&
