@@ -96,7 +96,7 @@ function spawnObject() {
     y: -40,
     size: canvas.width * 0.05,
     speedX: isSpeedBonus ? (Math.random() - 0.5) * 8 : (Math.random() - 0.5) * 4,
-    speedY: isSpeedBonus ? (2 + Math.random() * 3) * 2.2 : (2 + Math.random() * 3) * 1.1,
+    speedY: isSpeedBonus ? 3.63 : 3.63,
     type: type,
     bounces: isSpeedBonus
   });
@@ -119,6 +119,7 @@ function update() {
     }
 
     if (objects[i].y + objects[i].size > basket.y &&
+        objects[i].y < basket.y + basket.height &&
         objects[i].x + objects[i].size > basket.x &&
         objects[i].x < basket.x + basket.width) {
       score++;
